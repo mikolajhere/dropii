@@ -222,8 +222,8 @@
 .discount-title .Polaris-TextField,
 .map-title .Polaris-TextField,
 .shipping-title .Polaris-TextField {
-  min-width: 60px;
-  max-width: 70px;
+  min-width: 75px;
+  max-width: 75px;
   background-color: hotpink;
 }
 
@@ -233,4 +233,9 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+.map-title .Polaris-TextField__Backdrop,
+.discount-title .Polaris-TextField__Backdrop,
+.shipping-title .Polaris-TextField__Backdrop {
+  /* background-color: #fff3cd; */
 }

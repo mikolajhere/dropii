@@ -1,8 +1,9 @@
+import type { LoaderFunctionArgs} from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Page, Layout } from "@shopify/polaris";
 import { authenticate } from "~/shopify.server";
 
-export const loader = async ({ request }) => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { admin, session } = await authenticate.admin(request);
   const products = await admin.rest.resources.Product.all({
     session: session,

@@ -13,7 +13,7 @@ import { json } from "@remix-run/node";
 import { authenticate } from "../shopify.server";
 import { useLoaderData, useSubmit } from "@remix-run/react";
 import React, { useEffect, useState } from "react";
-import { TitleBar, useAppBridge } from "@shopify/app-bridge-react";
+import { TitleBar } from "@shopify/app-bridge-react";
 import { Switch } from "@headlessui/react";
 import { calculateValues } from "./hooks/calculate-values";
 import { calculateTotalPrice } from "./hooks/calculate-total-price";
@@ -31,14 +31,40 @@ export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
   const id = formData.get("id");
   const status = formData.get("status");
+  const map = formData.get("map");
+  const discount = formData.get("discount");
+
   if (typeof id !== "string" || typeof status !== "string") {
     return json({ message: "Invalid input" }, { status: 400 });
   }
-  const response = await admin.graphql(
-    `#graphql mutation { productUpdate(input: {id: "gid://shopify/Product/${id}", status: ${status.toUpperCase()}}) { product { id } } }`,
-  );
-  const responseJson = await response.json();
-  return json({ responseJson, message: "Success" });
+  if (status) {
+    const response = await admin.graphql(
+      `#graphql
+      mutation {
+        productUpdate(input: {id: "gid://shopify/Product/${id}", status: ${status.toUpperCase()}}) {
+          product {
+            id
+          }
+        }
+      }`,
+    );
+    const responseJson = await response.json();
+    return json({ responseJson, message: "Success" });
+  } else if (map && discount) {
+    // TODO Fix the map and discount update
+    const response = await admin.graphql(
+      `#graphql
+      mutation {
+        productUpdate(input: {id: "gid://shopify/Product/${id}", map: ${map}, discount: ${discount}}) {
+          product {
+            id
+          }
+        }
+      }`,
+    );
+    const responseJson = await response.json();
+    return json({ responseJson, message: "Success" });
+  }
 }
 
 export default function ManageProductsPage() {
@@ -46,7 +72,6 @@ export default function ManageProductsPage() {
   const {
     products: { data: productData },
   } = useLoaderData<typeof loader>();
-  console.log({ productData });
 
   const [globalMap, setGlobalMap] = useState<number>(0);
   const [globalShipping, setGlobalShipping] = useState<number>(10);
@@ -81,7 +106,7 @@ export default function ManageProductsPage() {
     }, {}),
   );
 
-  const shopify = useAppBridge();
+  // const shopify = useAppBridge();
   const submit = useSubmit();
 
   useEffect(() => {
@@ -102,27 +127,34 @@ export default function ManageProductsPage() {
     setState(updatedState);
   }, [globalMap, globalShipping, globalDiscount]);
 
-  const handleFieldChange = (id: string, field: string) => (value: string) => {
-    setState((prevState) => {
-      // Update the specific field value
-      const updatedFieldValue = value ? parseFloat(value) : 0;
-      // Prepare the updated state
-      const updatedState = {
-        ...prevState,
-        [id]: {
-          ...prevState[id],
-          [field]: updatedFieldValue,
-        },
-      };
-      // Calculate the updated values
-      const updatedValues = calculateValues(updatedState[id]);
-      // Return the new state with updated values
-      return {
-        ...updatedState,
-        [id]: { ...updatedState[id], ...updatedValues },
-      };
-    });
-  };
+  const handleFieldChange =
+    (id: string, field: string) => async (value: string) => {
+      setState((prevState) => {
+        // Update the specific field value
+        const updatedFieldValue = value ? parseFloat(value) : 0;
+        // Prepare the updated state
+        const updatedState = {
+          ...prevState,
+          [id]: {
+            ...prevState[id],
+            [field]: updatedFieldValue,
+          },
+        };
+        // Calculate the updated values
+        const updatedValues = calculateValues(updatedState[id]);
+        // Return the new state with updated values
+        return {
+          ...updatedState,
+          [id]: { ...updatedState[id], ...updatedValues },
+        };
+      });
+      if (field === "map" || field === "discount") {
+        submit(
+          { id: id.toString(), map: globalMap, discount: globalDiscount},
+          { replace: true, method: "PUT" },
+        );
+      }
+    };
 
   const toggleExpand = (id: string) => {
     setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -460,10 +492,11 @@ export default function ManageProductsPage() {
             <IndexTable
               itemCount={orders.length}
               headings={[
-                { title: "Status" },
-                { title: "Product Title" },
-                { title: "Your Retail Price" },
+                { id: "status", title: "Status" },
+                { id: "title", title: "Product Title" },
+                { id: "retailPrice", title: "Your Retail Price" },
                 {
+                  id: "map",
                   title: (
                     <span className="map-title">
                       MAP (+%)
@@ -479,6 +512,7 @@ export default function ManageProductsPage() {
                   ),
                 },
                 {
+                  id: "shipping",
                   title: (
                     <span className="shipping-title">
                       Shipping ($)
@@ -493,9 +527,10 @@ export default function ManageProductsPage() {
                     </span>
                   ),
                 },
-                { title: "Tax" },
-                { title: "Total Price" },
+                { id: "tax", title: "Tax" },
+                { id: "totalPrice", title: "Total Price" },
                 {
+                  id: "discount",
                   title: (
                     <span className="discount-title">
                       Discount (%)
@@ -510,8 +545,8 @@ export default function ManageProductsPage() {
                     </span>
                   ),
                 },
-                { title: "Retailer Price" },
-                { title: "Profit" },
+                { id: "retailerPrice", title: "Retailer Price" },
+                { id: "profit", title: "Profit" },
               ]}
             >
               {rowMarkup}
