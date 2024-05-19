@@ -1,5 +1,6 @@
-import type { LoaderFunctionArgs} from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
 import { Page, Layout } from "@shopify/polaris";
 import { authenticate } from "~/shopify.server";
 
@@ -12,6 +13,14 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 };
 
 export default function ManageRetailersPage() {
+  // const { testReq } = useLoaderData<typeof loader>();
+
+  const testReq = fetch("https://jsonplaceholder.typicode.com/todos")
+    .then((response) => response.json())
+    .then((json) => console.log(json));
+
+  console.log({ testReq });
+
   return (
     <Page fullWidth title="Manage Retails">
       <Layout>

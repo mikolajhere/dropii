@@ -50,24 +50,26 @@ export async function action({ request }: ActionFunctionArgs) {
     );
     const responseJson = await response.json();
     return json({ responseJson, message: "Success" });
-  } else if (map && discount) {
-    // TODO Fix the map and discount update
-    const response = await admin.graphql(
-      `#graphql
-      mutation {
-        productUpdate(input: {id: "gid://shopify/Product/${id}", map: ${map}, discount: ${discount}}) {
-          product {
-            id
-          }
-        }
-      }`,
-    );
-    const responseJson = await response.json();
-    return json({ responseJson, message: "Success" });
   }
+  //  else if (map && discount) {
+  //   // TODO Fix the map and discount update
+  //   const response = await admin.graphql(
+  //     `#graphql
+  //     mutation {
+  //       productUpdate(input: {id: "gid://shopify/Product/${id}", map: ${map}, discount: ${discount}}) {
+  //         product {
+  //           id
+  //         }
+  //       }
+  //     }`,
+  //   );
+  //   const responseJson = await response.json();
+  //   return json({ responseJson, message: "Success" });
+  // }
 }
 
 export default function ManageProductsPage() {
+  // TODO Fix variants map update
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const {
     products: { data: productData },
