@@ -8,7 +8,7 @@ import {
   Button,
   Thumbnail,
 } from "@shopify/polaris";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node"; 
 import { json } from "@remix-run/node";
 import { authenticate } from "../shopify.server";
 import { useLoaderData } from "@remix-run/react";
