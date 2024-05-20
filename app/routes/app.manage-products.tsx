@@ -42,7 +42,7 @@ export async function action({ request }: ActionFunctionArgs) {
     );
     const responseJson = await response.json();
     return json({ responseJson, message: "Success" });
-  }
+  } 
   //  else if (map && discount) {
   //   // TODO Fix the map and discount update
   //   const response = await admin.graphql(
