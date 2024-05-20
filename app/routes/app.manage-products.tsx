@@ -11,7 +11,7 @@ import {
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { authenticate } from "../shopify.server";
-import { useLoaderData, useSubmit } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react";
 import React, { useEffect, useState } from "react";
 import { TitleBar } from "@shopify/app-bridge-react";
 import { Switch } from "@headlessui/react";
@@ -31,8 +31,8 @@ export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
   const id = formData.get("id");
   const status = formData.get("status");
-  const map = formData.get("map");
-  const discount = formData.get("discount");
+  // const map = formData.get("map");
+  // const discount = formData.get("discount");
   if (typeof id !== "string" || typeof status !== "string") {
     return json({ message: "Invalid input" }, { status: 400 });
   }
@@ -101,7 +101,7 @@ export default function ManageProductsPage() {
   );
 
   // const shopify = useAppBridge();
-  const submit = useSubmit();
+  // const submit = useSubmit();
 
   useEffect(() => {
     // Handle global field updates
@@ -440,7 +440,7 @@ export default function ManageProductsPage() {
                 <TextField
                   label=""
                   autoComplete="off"
-                  value={state[`${id}-${variant.id}`]?.map || ""}
+                  value={(state[`${id}-${variant.id}`]?.map || "").toFixed(2)}
                   type="number"
                   onChange={handleFieldChange(`${id}-${variant.id}`, "map")}
                 />
