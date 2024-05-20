@@ -3,7 +3,7 @@
 client_id = "b880b4c390bdfb3fb7eaa8cc12f860b0"
 name = "dropii"
 handle = "dropii-2"
-application_url = "https://fashion-subsidiary-for-readily.trycloudflare.com"
+application_url = "https://optimal-hong-camcorder-sing.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "write_products"
 
 [auth]
 redirect_urls = [
-  "https://fashion-subsidiary-for-readily.trycloudflare.com/auth/callback",
-  "https://fashion-subsidiary-for-readily.trycloudflare.com/auth/shopify/callback",
-  "https://fashion-subsidiary-for-readily.trycloudflare.com/api/auth/callback"
+  "https://optimal-hong-camcorder-sing.trycloudflare.com/auth/callback",
+  "https://optimal-hong-camcorder-sing.trycloudflare.com/auth/shopify/callback",
+  "https://optimal-hong-camcorder-sing.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

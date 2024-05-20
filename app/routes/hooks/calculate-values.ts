@@ -9,6 +9,8 @@ export function calculateValues(state: {
 }) {
   const { map, shipping, discount } = state;
 
+  console.log({ map, shipping, discount })
+
   // Calculate Total Price
   const totalPrice = calculateTotalPrice(map, shipping);
 

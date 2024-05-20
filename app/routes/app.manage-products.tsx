@@ -33,20 +33,12 @@ export async function action({ request }: ActionFunctionArgs) {
   const status = formData.get("status");
   const map = formData.get("map");
   const discount = formData.get("discount");
-
   if (typeof id !== "string" || typeof status !== "string") {
     return json({ message: "Invalid input" }, { status: 400 });
   }
   if (status) {
     const response = await admin.graphql(
-      `#graphql
-      mutation {
-        productUpdate(input: {id: "gid://shopify/Product/${id}", status: ${status.toUpperCase()}}) {
-          product {
-            id
-          }
-        }
-      }`,
+      `#graphql mutation { productUpdate(input: {id: "gid://shopify/Product/${id}", status: ${status.toUpperCase()}}) { product { id } } }`,
     );
     const responseJson = await response.json();
     return json({ responseJson, message: "Success" });
@@ -74,7 +66,6 @@ export default function ManageProductsPage() {
   const {
     products: { data: productData },
   } = useLoaderData<typeof loader>();
-
   const [globalMap, setGlobalMap] = useState<number>(0);
   const [globalShipping, setGlobalShipping] = useState<number>(10);
   const [globalDiscount, setGlobalDiscount] = useState<number>(25);
@@ -94,6 +85,7 @@ export default function ManageProductsPage() {
       product.variants.forEach((variant: any) => {
         const variantPrice = parseFloat(variant.price || "0.00");
         acc[`${product.id}-${variant.id}`] = {
+          map: 2137,
           price: variantPrice,
           shipping: globalShipping,
           discount: globalDiscount,
@@ -124,6 +116,7 @@ export default function ManageProductsPage() {
       updatedState[key].shipping = globalShipping;
       updatedState[key].discount = globalDiscount;
       const updatedValues = calculateValues(updatedState[key]);
+
       updatedState[key] = { ...updatedState[key], ...updatedValues };
     }
     setState(updatedState);
@@ -147,14 +140,18 @@ export default function ManageProductsPage() {
         // Return the new state with updated values
         return {
           ...updatedState,
-          [id]: { ...updatedState[id], ...updatedValues },
+          [id]: {
+            ...updatedState[id],
+            ...updatedValues,
+          },
         };
       });
+
       if (field === "map" || field === "discount") {
-        submit(
-          { id: id.toString(), map: globalMap, discount: globalDiscount},
-          { replace: true, method: "PUT" },
-        );
+        // submit(
+        //   { id: id.toString(), map: globalMap, discount: globalDiscount},
+        //   { replace: true, method: "PUT" },
+        // );
       }
     };
 
@@ -183,11 +180,12 @@ export default function ManageProductsPage() {
         }
         return updatedState;
       });
+
       // Submit the change to the backend
-      submit(
-        { id: id.toString(), status: value ? "active" : "draft" },
-        { replace: true, method: "PUT" },
-      );
+      // submit(
+      //   { id: id.toString(), status: value ? "active" : "draft" },
+      //   { replace: true, method: "PUT" },
+      // );
     };
 
   const orders = productData.map((product) => ({
@@ -442,9 +440,9 @@ export default function ManageProductsPage() {
                 <TextField
                   label=""
                   autoComplete="off"
-                  value={state[`${id}-${variant.id}`]?.price || ""}
+                  value={state[`${id}-${variant.id}`]?.map || ""}
                   type="number"
-                  onChange={handleFieldChange(`${id}-${variant.id}`, "price")}
+                  onChange={handleFieldChange(`${id}-${variant.id}`, "map")}
                 />
               </IndexTable.Cell>
               <IndexTable.Cell>
@@ -460,7 +458,9 @@ export default function ManageProductsPage() {
                 />
               </IndexTable.Cell>
               <IndexTable.Cell>7%</IndexTable.Cell>
-              <IndexTable.Cell>{`$${(state[`${id}-${variant.id}`]?.totalPrice || 0).toFixed(2)}`}</IndexTable.Cell>
+              <IndexTable.Cell>
+                {`$${(state[`${id}-${variant.id}`]?.totalPrice || 0).toFixed(2)}`}
+              </IndexTable.Cell>
               <IndexTable.Cell>
                 <TextField
                   label=""
@@ -473,7 +473,9 @@ export default function ManageProductsPage() {
                   )}
                 />
               </IndexTable.Cell>
-              <IndexTable.Cell>{`$${(state[`${id}-${variant.id}`]?.retailerPrice || 0).toFixed(2)}`}</IndexTable.Cell>
+              <IndexTable.Cell>
+                {`$${(state[`${id}-${variant.id}`]?.retailerPrice || 0).toFixed(2)}`}
+              </IndexTable.Cell>
               <IndexTable.Cell>
                 <Text as="span" tone="success">
                   {`$${(state[`${id}-${variant.id}`]?.profit || 0).toFixed(2)}`}
